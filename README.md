@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +19,7 @@
             --secondary-blue: #2e86c1;
             --accent-yellow: #ffff00;
             --border-color: #a6a6a6;
+            --whatsapp-green: #25d366;
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
         body { background-color: #f7f9fa; color: #333; padding: 10px; }
@@ -37,6 +39,7 @@
         .btn-danger { background-color: #922b21; }
         .btn-success { background-color: #1e8449; }
         .btn-secondary { background-color: #7f8c8d; }
+        .btn-whatsapp { background-color: var(--whatsapp-green); color: white; }
         .table-wrapper { overflow-x: auto; margin-top: 15px; background: white; border: 1px solid #000; }
         .schedule-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
         .schedule-table th, .schedule-table td { border: 1px solid #000; padding: 4px; min-width: 65px; height: 24px; }
@@ -75,8 +78,9 @@
                     <label style="white-space: nowrap; font-size:13px;">Semana (Lunes):</label>
                     <input type="date" id="search-week-date" onchange="syncDatesFromConsulta()">
                 </div>
-                <div style="display: flex; gap: 8px; width: 100%;">
-                    <button class="btn btn-success" style="flex: 1;" onclick="exportToImage()">Exportar Imagen</button>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%;">
+                    <button class="btn btn-success" style="flex: 1; min-width: 120px;" onclick="exportToImage()">Guardar Imagen</button>
+                    <button class="btn btn-whatsapp" style="flex: 1; min-width: 150px;" onclick="shareToWhatsApp()">Compartir en WhatsApp</button>
                     <button class="btn btn-secondary" onclick="clearWeekData()">Limpiar</button>
                 </div>
             </div>
@@ -331,7 +335,7 @@
 
             const horasAAnadir = emp.position === 'Cosmetóloga' ? 9 : 8;
             let [horaMilitar, ampm] = entryVal.split(' ');
-            let [horas, minutos] = htmlMilitar = horaMilitar.split(':').map(Number);
+            let [horas, minutos] = horaMilitar.split(':').map(Number);
 
             if(ampm === 'p.m.' && horas !== 12) horas += 12;
             if(ampm === 'a.m.' && horas === 12) horas = 0;
@@ -404,7 +408,6 @@
             let partes = weekDate.split('-');
             let baseTime = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2])).getTime();
             
-            // CORRECCIÓN DE IDS: Coincidencia exacta con el HTML sin acentos en las variables de mapeo
             const idsDias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
             const nombresDias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
             
@@ -413,7 +416,6 @@
                 let fechaCalculada = new Date(baseTime + unDiaEnMs);
                 let numeroDia = String(fechaCalculada.getDate()).padStart(2, '0');
                 
-                // Busca con id exacto del DOM (ej: head-miercoles) pero pinta el texto correcto con acento
                 document.getElementById(`head-${idDia}`).innerText = `${nombresDias[idx]} ${numeroDia}`;
             });
 
@@ -466,7 +468,44 @@
             });
         }
 
-        // CORRECCIÓN DEL SERVICE WORKER: Formato compatible con GitHub Pages
+        // --- NUEVA FUNCIÓN PARA COMPARTIR EN WHATSAPP / MÓVIL ---
+        function shareToWhatsApp() {
+            const target = document.getElementById('capture-area');
+            const dateVal = document.getElementById('search-week-date').value;
+            if(!dateVal) return alert('Selecciona una semana antes de compartir.');
+
+            // Generar la captura de pantalla usando html2canvas
+            html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+                canvas.toBlob(blob => {
+                    if (!blob) return alert('Error al procesar la imagen.');
+                    
+                    // Crear un archivo virtual con la imagen generada
+                    const nombreArchivo = `Horario_Semana_${dateVal}.png`;
+                    const archivoCompartir = new File([blob], nombreArchivo, { type: 'image/png' });
+
+                    // Verificar si el navegador soporta el envío directo de archivos compartidos (Web Share API)
+                    if (navigator.canShare && navigator.canShare({ files: [archivoCompartir] })) {
+                        navigator.share({
+                            files: [archivoCompartir],
+                            title: `Horario de Personal - Semana ${dateVal}`,
+                            text: `Comparto la cuadrícula de horarios de Polanco para la semana ${dateVal}.`
+                        })
+                        .catch(err => console.log('El usuario canceló la acción de compartir.'));
+                    } else {
+                        // Plan B alternativo: Si se ejecuta en computadoras viejas que no lo soportan, descarga el archivo y abre WhatsApp Web
+                        alert('Tu navegador no permite enviar la imagen directamente de forma automática. Se descargará el horario y abriremos WhatsApp Web para que lo adjuntes manualmente.');
+                        
+                        const link = document.createElement('a');
+                        link.download = nombreArchivo;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        window.open(`https://web.whatsapp.com/`, '_blank');
+                    }
+                }, 'image/png');
+            });
+        }
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./service-worker.js').catch(err => {
                 console.log("Modo Web Local Activado (Sin SW offline)");
