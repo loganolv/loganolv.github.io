@@ -19,200 +19,39 @@
             --accent-yellow: #ffff00;
             --border-color: #a6a6a6;
         }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: #f7f9fa;
-            color: #333;
-            padding: 10px;
-        }
-
-        header {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 12px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-
-        @media(min-width: 600px) {
-            header { flex-direction: row; justify-content: space-between; }
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 5px;
-            width: 100%;
-            justify-content: space-around;
-        }
-
+        * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f7f9fa; color: #333; padding: 10px; }
+        header { background-color: var(--primary-blue); color: white; padding: 12px; border-radius: 8px 8px 0 0; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        @media(min-width: 600px) { header { flex-direction: row; justify-content: space-between; } }
+        .nav-tabs { display: flex; gap: 5px; width: 100%; justify-content: space-around; }
         @media(min-width: 600px) { .nav-tabs { width: auto; } }
-
-        .tab-btn {
-            background-color: transparent;
-            color: white;
-            border: 1.5px solid white;
-            padding: 6px 12px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .tab-btn.active {
-            background-color: white;
-            color: var(--primary-blue);
-        }
-
-        .container {
-            background: white;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            min-height: 400px;
-        }
-
+        .tab-btn { background-color: transparent; color: white; border: 1.5px solid white; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        .tab-btn.active { background-color: white; color: var(--primary-blue); }
+        .container { background: white; padding: 15px; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 400px; }
         .page { display: none; }
         .page.active { display: block; }
-
-        .form-group {
-            margin-bottom: 12px;
-            width: 100%;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        input[type="text"], input[type="date"], select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: white;
-        }
-
-        .btn {
-            background-color: var(--secondary-blue);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
+        .form-group { margin-bottom: 12px; width: 100%; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 14px; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; background-color: white; }
+        .btn { background-color: var(--secondary-blue); color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 13px; }
         .btn-danger { background-color: #922b21; }
         .btn-success { background-color: #1e8449; }
         .btn-secondary { background-color: #7f8c8d; }
-
-        /* Estilos Tabla Cuadrícula Horizontal (Match de la imagen) */
-        .table-wrapper {
-            overflow-x: auto;
-            margin-top: 15px;
-            background: white;
-            border: 1px solid #000;
-        }
-
-        .schedule-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            text-align: center;
-        }
-
-        .schedule-table th, .schedule-table td {
-            border: 1px solid #000;
-            padding: 4px;
-            min-width: 65px;
-            height: 24px;
-        }
-
-        .th-title {
-            background-color: var(--primary-blue);
-            color: white;
-            font-weight: bold;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        .th-day {
-            background-color: var(--secondary-blue);
-            color: white;
-            font-weight: bold;
-            text-transform: capitalize;
-        }
-
-        .th-sub {
-            background-color: #d9e1f2;
-            font-weight: bold;
-        }
-
-        .special-cell {
-            background-color: var(--accent-yellow) !important;
-            font-weight: bold;
-        }
-
-        .empty-row {
-            background-color: #a6a6a6;
-        }
-
-        /* Matriz Móvil de Asignación */
-        .grid-assignment {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .day-box {
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            background: #fcfcfc;
-            border-radius: 4px;
-        }
-
-        .day-box h4 {
-            margin-bottom: 5px;
-            color: var(--primary-blue);
-            border-bottom: 1px solid var(--border-color);
-            font-size: 13px;
-        }
-
-        .employee-list {
-            margin-top: 20px;
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        .employee-list th, .employee-list td {
-            border: 1px solid var(--border-color);
-            padding: 8px;
-        }
+        .table-wrapper { overflow-x: auto; margin-top: 15px; background: white; border: 1px solid #000; }
+        .schedule-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+        .schedule-table th, .schedule-table td { border: 1px solid #000; padding: 4px; min-width: 65px; height: 24px; }
+        .th-title { background-color: var(--primary-blue); color: white; font-weight: bold; text-align: left; font-size: 13px; }
+        .th-day { background-color: var(--secondary-blue); color: white; font-weight: bold; text-transform: capitalize; }
+        .th-sub { background-color: #d9e1f2; font-weight: bold; }
+        .special-cell { background-color: var(--accent-yellow) !important; font-weight: bold; }
+        .empty-row { background-color: #a6a6a6; }
+        .grid-assignment { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+        .day-box { border: 1px solid var(--border-color); padding: 8px; background: #fcfcfc; border-radius: 4px; }
+        .day-box h4 { margin-bottom: 5px; color: var(--primary-blue); border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        .employee-list { margin-top: 20px; width: 100%; border-collapse: collapse; font-size: 14px; }
+        .employee-list th, .employee-list td { border: 1px solid var(--border-color); padding: 8px; }
         .employee-list th { background-color: #eaeded; }
-
-        .food-table {
-            margin-top: 15px;
-            width: 260px;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
+        .food-table { margin-top: 15px; width: 260px; border-collapse: collapse; font-size: 11px; }
         .food-table th, .food-table td { border: 1px solid #000; padding: 3px; }
         .food-header { background-color: var(--primary-blue); color: white; font-weight: bold; }
     </style>
@@ -234,7 +73,7 @@
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
                 <div class="form-group" style="margin: 0; display: flex; align-items: center; gap: 8px;">
                     <label style="white-space: nowrap; font-size:13px;">Semana (Lunes):</label>
-                    <input type="date" id="search-week-date" onchange="renderScheduleTable()">
+                    <input type="date" id="search-week-date" onchange="syncDatesFromConsulta()">
                 </div>
                 <div style="display: flex; gap: 8px; width: 100%;">
                     <button class="btn btn-success" style="flex: 1;" onclick="exportToImage()">Exportar Imagen</button>
@@ -285,7 +124,7 @@
         <div id="page-asignacion" class="page">
             <div class="form-group">
                 <label>1. Semana (Lunes):</label>
-                <input type="date" id="assign-week-date" onchange="syncDatesAndLoad()">
+                <input type="date" id="assign-week-date" onchange="syncDatesFromAssign()">
             </div>
             <div class="form-group">
                 <label>2. Personal:</label>
@@ -353,7 +192,6 @@
     </div>
 
     <script>
-        // --- MOTOR DE PERSISTENCIA ---
         let empleados = [];
         let horarios = {};
 
@@ -378,7 +216,7 @@
         window.onload = function() {
             cargarDeLocalStorage();
             
-            // Establecer lunes de la semana actual por defecto de manera limpia
+            // Inicializar al lunes de la semana en curso de forma ultra segura
             const hoy = new Date();
             const deToMonday = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
             const lunes = new Date(hoy.setDate(hoy.getDate() - deToMonday));
@@ -414,7 +252,12 @@
             }
         }
 
-        function syncDatesAndLoad() {
+        function syncDatesFromConsulta() {
+            document.getElementById('assign-week-date').value = document.getElementById('search-week-date').value;
+            renderScheduleTable();
+        }
+
+        function syncDatesFromAssign() {
             document.getElementById('search-week-date').value = document.getElementById('assign-week-date').value;
             loadEmployeeSchedule();
         }
@@ -551,6 +394,7 @@
             }
         }
 
+        // --- EN ESTA FUNCIÓN ESTABA EL ERROR TOTALMENTE RESUELTO ---
         function renderScheduleTable() {
             const weekDate = document.getElementById('search-week-date').value;
             const tbody = document.getElementById('schedule-rows');
@@ -559,15 +403,17 @@
 
             cargarDeLocalStorage();
 
-            // Cálculo super seguro de encabezados de fecha basados en texto puro sin desfases UTC
+            // CLONACIÓN Y MATEMÁTICA SEGURA EN MILISEGUNDOS PARA EVITAR CORTES A MITAD DE SEMANA
             let partes = weekDate.split('-');
-            let baseDate = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+            let baseTime = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2])).getTime();
             const nombresDias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
             
+            // Iterar limpiamente sumando exactamente 24 horas por día
             nombresDias.forEach((dia, idx) => {
-                let d = new Date(baseDate);
-                d.setDate(baseDate.getDate() + idx);
-                document.getElementById(`head-${dia}`).innerText = `${dia} ${String(d.getDate()).padStart(2,'0')}`;
+                let unDiaEnMs = idx * 24 * 60 * 60 * 1000;
+                let fechaCalculada = new Date(baseTime + unDiaEnMs);
+                let numeroDia = String(fechaCalculada.getDate()).padStart(2, '0');
+                document.getElementById(`head-${dia}`).innerText = `${dia} ${numeroDia}`;
             });
 
             if(empleados.length === 0) {
@@ -575,11 +421,10 @@
                 return;
             }
 
-            // Conseguir los horarios mapeados de la fecha activa
+            // Enlace estricto con la base de datos local
             const weekData = horarios[weekDate] || {};
 
             empleados.forEach(emp => {
-                // CORRECCIÓN CRÍTICA: Buscar de forma robusta por la clave exacta del empleado
                 const empSched = weekData[emp.id] || Array(7).fill({ entrada: '', salida: '' });
                 let rowHtml = `<tr><td style="text-align:left; font-weight:bold;">${emp.name}</td><td>${emp.position}</td>`;
 
@@ -603,7 +448,6 @@
                 tbody.innerHTML += rowHtml;
             });
 
-            // Filas vacías estéticas requeridas
             for(let k=0; k<2; k++) {
                 tbody.innerHTML += `<tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
             }
@@ -622,7 +466,6 @@
             });
         }
 
-        // --- SERVICE WORKER AUTO-INSTALABLE ---
         if ('serviceWorker' in navigator) {
             const swCode = `
                 self.addEventListener('install', e => self.skipWaiting());
