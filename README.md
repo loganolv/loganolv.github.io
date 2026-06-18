@@ -216,7 +216,6 @@
         window.onload = function() {
             cargarDeLocalStorage();
             
-            // Inicializar al lunes de la semana en curso de forma ultra segura
             const hoy = new Date();
             const deToMonday = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
             const lunes = new Date(hoy.setDate(hoy.getDate() - deToMonday));
@@ -332,7 +331,7 @@
 
             const horasAAnadir = emp.position === 'Cosmetóloga' ? 9 : 8;
             let [horaMilitar, ampm] = entryVal.split(' ');
-            let [horas, minutos] = horaMilitar.split(':').map(Number);
+            let [horas, minutos] = htmlMilitar = horaMilitar.split(':').map(Number);
 
             if(ampm === 'p.m.' && horas !== 12) horas += 12;
             if(ampm === 'a.m.' && horas === 12) horas = 0;
@@ -394,7 +393,6 @@
             }
         }
 
-        // --- EN ESTA FUNCIÓN ESTABA EL ERROR TOTALMENTE RESUELTO ---
         function renderScheduleTable() {
             const weekDate = document.getElementById('search-week-date').value;
             const tbody = document.getElementById('schedule-rows');
@@ -403,17 +401,20 @@
 
             cargarDeLocalStorage();
 
-            // CLONACIÓN Y MATEMÁTICA SEGURA EN MILISEGUNDOS PARA EVITAR CORTES A MITAD DE SEMANA
             let partes = weekDate.split('-');
             let baseTime = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2])).getTime();
+            
+            // CORRECCIÓN DE IDS: Coincidencia exacta con el HTML sin acentos en las variables de mapeo
+            const idsDias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
             const nombresDias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
             
-            // Iterar limpiamente sumando exactamente 24 horas por día
-            nombresDias.forEach((dia, idx) => {
+            idsDias.forEach((idDia, idx) => {
                 let unDiaEnMs = idx * 24 * 60 * 60 * 1000;
                 let fechaCalculada = new Date(baseTime + unDiaEnMs);
                 let numeroDia = String(fechaCalculada.getDate()).padStart(2, '0');
-                document.getElementById(`head-${dia}`).innerText = `${dia} ${numeroDia}`;
+                
+                // Busca con id exacto del DOM (ej: head-miercoles) pero pinta el texto correcto con acento
+                document.getElementById(`head-${idDia}`).innerText = `${nombresDias[idx]} ${numeroDia}`;
             });
 
             if(empleados.length === 0) {
@@ -421,7 +422,6 @@
                 return;
             }
 
-            // Enlace estricto con la base de datos local
             const weekData = horarios[weekDate] || {};
 
             empleados.forEach(emp => {
@@ -466,14 +466,11 @@
             });
         }
 
+        // CORRECCIÓN DEL SERVICE WORKER: Formato compatible con GitHub Pages
         if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-            `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(blob));
+            navigator.serviceWorker.register('./service-worker.js').catch(err => {
+                console.log("Modo Web Local Activado (Sin SW offline)");
+            });
         }
     </script>
 </body>
