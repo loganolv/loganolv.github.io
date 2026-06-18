@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -354,7 +353,7 @@
     </div>
 
     <script>
-        // --- MOTOR DE PERSISTENCIA GLOBAL CORREGIDO ---
+        // --- MOTOR DE PERSISTENCIA ---
         let empleados = [];
         let horarios = {};
 
@@ -379,7 +378,7 @@
         window.onload = function() {
             cargarDeLocalStorage();
             
-            // Forzar fecha de inicio (Lunes actual) de manera segura como texto puro sin desfasamiento horario
+            // Establecer lunes de la semana actual por defecto de manera limpia
             const hoy = new Date();
             const deToMonday = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
             const lunes = new Date(hoy.setDate(hoy.getDate() - deToMonday));
@@ -404,7 +403,6 @@
             document.getElementById(`page-${pageId}`).classList.add('active');
             btn.classList.add('active');
 
-            // Cargar datos en limpio del localStorage en cada cambio de pestaña
             cargarDeLocalStorage();
 
             if(pageId === 'consulta') {
@@ -463,7 +461,7 @@
 
         function populateEmployeeSelects() {
             const select = document.getElementById('assign-employee');
-            const currentVal = select.value;
+            const valAnterior = select.value;
             select.innerHTML = '';
             if(empleados.length === 0) {
                 select.innerHTML = '<option value="">-- Crea empleados primero --</option>';
@@ -472,8 +470,8 @@
             empleados.forEach(e => {
                 select.innerHTML += `<option value="${e.id}">${e.name}</option>`;
             });
-            if(currentVal && empleados.some(e => e.id === currentVal)) {
-                select.value = currentVal;
+            if(valAnterior && empleados.some(e => e.id === valAnterior)) {
+                select.value = valAnterior;
             }
         }
 
@@ -506,9 +504,8 @@
         function saveSchedule() {
             const empId = document.getElementById('assign-employee').value;
             const weekDate = document.getElementById('assign-week-date').value;
-            if(!empId || !weekDate) return alert('Faltan datos.');
+            if(!empId || !weekDate) return alert('Selecciona un empleado y una fecha.');
 
-            // Asegurar que leemos el estado más fresco del disco antes de sobreescribir
             cargarDeLocalStorage();
 
             if(!horarios[weekDate]) horarios[weekDate] = {};
@@ -521,14 +518,13 @@
             }
 
             guardarEnLocalStorage();
-            alert('Cambios guardados permanentemente.');
+            alert('Horario guardado con éxito para esta semana.');
         }
 
         function loadEmployeeSchedule() {
             const empId = document.getElementById('assign-employee').value;
             const weekDate = document.getElementById('assign-week-date').value;
 
-            // Limpiar inputs visuales por defecto
             for(let i=0; i<7; i++) {
                 document.getElementById(`day-entry-${i}`).value = '';
                 document.getElementById(`day-exit-${i}`).value = '';
@@ -561,10 +557,9 @@
             tbody.innerHTML = '';
             if(!weekDate) return;
 
-            // Recargar datos para estar sincronizado
             cargarDeLocalStorage();
 
-            // Cálculo seguro de los días del mes sin desfase UTC local
+            // Cálculo super seguro de encabezados de fecha basados en texto puro sin desfases UTC
             let partes = weekDate.split('-');
             let baseDate = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
             const nombresDias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
@@ -580,9 +575,11 @@
                 return;
             }
 
+            // Conseguir los horarios mapeados de la fecha activa
             const weekData = horarios[weekDate] || {};
 
             empleados.forEach(emp => {
+                // CORRECCIÓN CRÍTICA: Buscar de forma robusta por la clave exacta del empleado
                 const empSched = weekData[emp.id] || Array(7).fill({ entrada: '', salida: '' });
                 let rowHtml = `<tr><td style="text-align:left; font-weight:bold;">${emp.name}</td><td>${emp.position}</td>`;
 
@@ -590,7 +587,10 @@
                     const cellData = empSched[i] || { entrada: '', salida: '' };
                     let ent = cellData.entrada || '';
                     let sal = cellData.salida || '';
-                    if(ent && ent.includes(' ')) ent = ent.split(' ')[0];
+                    
+                    if(ent && ent.includes(' ') && !["Descanso", "Vacaciones", "Incapacidad", "Capacitación", "Corporativo", "Otra Tienda"].includes(ent)) {
+                        ent = ent.split(' ')[0]; 
+                    }
 
                     const especiales = ["Descanso", "Vacaciones", "Incapacidad", "Capacitación", "Corporativo", "Otra Tienda"];
                     if(especiales.includes(cellData.entrada)) {
@@ -603,6 +603,7 @@
                 tbody.innerHTML += rowHtml;
             });
 
+            // Filas vacías estéticas requeridas
             for(let k=0; k<2; k++) {
                 tbody.innerHTML += `<tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
             }
