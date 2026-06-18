@@ -455,45 +455,71 @@
             }
         }
 
+        // --- SOLUCIÓN CRÍTICA: FUERZA EL ANCHO REAL COMPLETO DE LA TABLA AL EXPORTAR ---
         function exportToImage() {
-            const target = document.getElementById('capture-area');
+            const wrapper = document.getElementById('capture-area');
+            const table = wrapper.querySelector('.schedule-table');
             const dateVal = document.getElementById('search-week-date').value;
             if(!dateVal) return alert('Selecciona una semana.');
 
-            html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+            // Guardamos valores de scroll originales
+            const scrollOriginal = wrapper.scrollLeft;
+            wrapper.scrollLeft = 0;
+
+            // Forzamos temporalmente a html2canvas a tomar el tamaño completo real de la tabla desbordada
+            html2canvas(wrapper, { 
+                scale: 2, 
+                backgroundColor: "#ffffff",
+                width: table.scrollWidth + 10, // Ancho total de la tabla
+                height: wrapper.scrollHeight,
+                windowWidth: table.scrollWidth + 100
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Horario_Semana_${dateVal}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+                
+                // Restauramos scroll original
+                wrapper.scrollLeft = scrollOriginal;
             });
         }
 
-        // --- NUEVA FUNCIÓN PARA COMPARTIR EN WHATSAPP / MÓVIL ---
+        // --- SOLUCIÓN CRÍTICA: FUERZA EL ANCHO REAL COMPLETO DE LA TABLA AL COMPARTIR ---
         function shareToWhatsApp() {
-            const target = document.getElementById('capture-area');
+            const wrapper = document.getElementById('capture-area');
+            const table = wrapper.querySelector('.schedule-table');
             const dateVal = document.getElementById('search-week-date').value;
             if(!dateVal) return alert('Selecciona una semana antes de compartir.');
 
-            // Generar la captura de pantalla usando html2canvas
-            html2canvas(target, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+            // Guardamos valores de scroll originales
+            const scrollOriginal = wrapper.scrollLeft;
+            wrapper.scrollLeft = 0;
+
+            html2canvas(wrapper, { 
+                scale: 2, 
+                backgroundColor: "#ffffff",
+                width: table.scrollWidth + 10, // Captura todo el ancho oculto
+                height: wrapper.scrollHeight,
+                windowWidth: table.scrollWidth + 100
+            }).then(canvas => {
+                // Restauramos scroll original inmediatamente después del renderizado interno
+                wrapper.scrollLeft = scrollOriginal;
+
                 canvas.toBlob(blob => {
                     if (!blob) return alert('Error al procesar la imagen.');
                     
-                    // Crear un archivo virtual con la imagen generada
                     const nombreArchivo = `Horario_Semana_${dateVal}.png`;
                     const archivoCompartir = new File([blob], nombreArchivo, { type: 'image/png' });
 
-                    // Verificar si el navegador soporta el envío directo de archivos compartidos (Web Share API)
                     if (navigator.canShare && navigator.canShare({ files: [archivoCompartir] })) {
                         navigator.share({
                             files: [archivoCompartir],
-                            title: `Horario de Personal - Semana ${dateVal}`,
-                            text: `Comparto la cuadrícula de horarios de Polanco para la semana ${dateVal}.`
+                            title: `Horario Polanco - Semana ${dateVal}`,
+                            text: `Comparto la cuadrícula completa de horarios para la semana ${dateVal}.`
                         })
-                        .catch(err => console.log('El usuario canceló la acción de compartir.'));
+                        .catch(err => console.log('Acción cancelada por el usuario.'));
                     } else {
-                        // Plan B alternativo: Si se ejecuta en computadoras viejas que no lo soportan, descarga el archivo y abre WhatsApp Web
-                        alert('Tu navegador no permite enviar la imagen directamente de forma automática. Se descargará el horario y abriremos WhatsApp Web para que lo adjuntes manualmente.');
+                        alert('Tu navegador no permite enviar la imagen directamente. Se descargará el horario completo automáticamente y abriremos WhatsApp Web para adjuntarlo.');
                         
                         const link = document.createElement('a');
                         link.download = nombreArchivo;
