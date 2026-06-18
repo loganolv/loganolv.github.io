@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -455,58 +454,66 @@
             }
         }
 
-        // --- SOLUCIÓN CRÍTICA: FUERZA EL ANCHO REAL COMPLETO DE LA TABLA AL EXPORTAR ---
+        // --- SOLUCIÓN DE FONDO: EXTRACCIÓN DE LIENZO INVISIBLE (100% LIMPIO) ---
+        function renderizarImagenLimpia(callback) {
+            const areaOriginal = document.getElementById('capture-area');
+            
+            // 1. Creamos un contenedor temporal completamente plano y desenrollado
+            const clonOculto = areaOriginal.cloneNode(true);
+            
+            // 2. Forzamos estilos absolutos de escritorio ancho para eliminar barras de scroll y saltos
+            clonOculto.style.position = 'fixed';
+            clonOculto.style.top = '0';
+            clonOculto.style.left = '-9999px'; // Lo mandamos fuera de la pantalla visible
+            clonOculto.style.width = '1300px';  // Tamaño ideal para que quepa todo plano y estirado como en tu ejemplo
+            clonOculto.style.overflow = 'visible';
+            clonOculto.style.background = '#ffffff';
+            clonOculto.style.padding = '15px';
+            clonOculto.style.boxSizing = 'content-box';
+
+            // Forzar a la tabla interna del clon a ocupar todo el espacio plano
+            const tablaClonada = clonOculto.querySelector('.schedule-table');
+            if(tablaClonada) {
+                tablaClonada.style.width = '100%';
+            }
+
+            document.body.appendChild(clonOculto);
+
+            // 3. Tomamos la foto directo a este clon perfecto
+            html2canvas(clonOculto, { 
+                scale: 2, // Excelente definición (Retina)
+                backgroundColor: "#ffffff",
+                windowWidth: 1350 // Emulamos una ventana gigante
+            }).then(canvas => {
+                // 4. Eliminamos el clon de la memoria inmediatamente
+                document.body.removeChild(clonOculto);
+                callback(canvas);
+            }).catch(err => {
+                if(clonOculto.parentNode) document.body.removeChild(clonOculto);
+                console.error(err);
+                alert('Ocurrió un detalle al procesar la imagen.');
+            });
+        }
+
         function exportToImage() {
-            const wrapper = document.getElementById('capture-area');
-            const table = wrapper.querySelector('.schedule-table');
             const dateVal = document.getElementById('search-week-date').value;
             if(!dateVal) return alert('Selecciona una semana.');
 
-            // Guardamos valores de scroll originales
-            const scrollOriginal = wrapper.scrollLeft;
-            wrapper.scrollLeft = 0;
-
-            // Forzamos temporalmente a html2canvas a tomar el tamaño completo real de la tabla desbordada
-            html2canvas(wrapper, { 
-                scale: 2, 
-                backgroundColor: "#ffffff",
-                width: table.scrollWidth + 10, // Ancho total de la tabla
-                height: wrapper.scrollHeight,
-                windowWidth: table.scrollWidth + 100
-            }).then(canvas => {
+            renderizarImagenLimpia(canvas => {
                 const link = document.createElement('a');
                 link.download = `Horario_Semana_${dateVal}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-                
-                // Restauramos scroll original
-                wrapper.scrollLeft = scrollOriginal;
             });
         }
 
-        // --- SOLUCIÓN CRÍTICA: FUERZA EL ANCHO REAL COMPLETO DE LA TABLA AL COMPARTIR ---
         function shareToWhatsApp() {
-            const wrapper = document.getElementById('capture-area');
-            const table = wrapper.querySelector('.schedule-table');
             const dateVal = document.getElementById('search-week-date').value;
             if(!dateVal) return alert('Selecciona una semana antes de compartir.');
 
-            // Guardamos valores de scroll originales
-            const scrollOriginal = wrapper.scrollLeft;
-            wrapper.scrollLeft = 0;
-
-            html2canvas(wrapper, { 
-                scale: 2, 
-                backgroundColor: "#ffffff",
-                width: table.scrollWidth + 10, // Captura todo el ancho oculto
-                height: wrapper.scrollHeight,
-                windowWidth: table.scrollWidth + 100
-            }).then(canvas => {
-                // Restauramos scroll original inmediatamente después del renderizado interno
-                wrapper.scrollLeft = scrollOriginal;
-
+            renderizarImagenLimpia(canvas => {
                 canvas.toBlob(blob => {
-                    if (!blob) return alert('Error al procesar la imagen.');
+                    if (!blob) return alert('Error al empaquetar la imagen.');
                     
                     const nombreArchivo = `Horario_Semana_${dateVal}.png`;
                     const archivoCompartir = new File([blob], nombreArchivo, { type: 'image/png' });
@@ -517,9 +524,9 @@
                             title: `Horario Polanco - Semana ${dateVal}`,
                             text: `Comparto la cuadrícula completa de horarios para la semana ${dateVal}.`
                         })
-                        .catch(err => console.log('Acción cancelada por el usuario.'));
+                        .catch(err => console.log('Envío cancelado.'));
                     } else {
-                        alert('Tu navegador no permite enviar la imagen directamente. Se descargará el horario completo automáticamente y abriremos WhatsApp Web para adjuntarlo.');
+                        alert('Tu dispositivo no soporta envío directo automático. Se descargará la imagen completa y abriremos WhatsApp Web para que la adjuntes manualmente.');
                         
                         const link = document.createElement('a');
                         link.download = nombreArchivo;
