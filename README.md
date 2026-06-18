@@ -9,9 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1b4f72">
     
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Control%20de%20Horarios%22,%22short_name%22:%22Horarios%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23ffffff%22,%22theme_color%22:%22%231b4f72%22,%22orientation%22:%22landscape%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/3652/3652191.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Control de Horarios","short_name":"Horarios","start_url":".","display":"standalone","background_color":"#ffffff","theme_color":"#1b4f72","orientation":"landscape","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/3652/3652191.png","sizes":"512x512","type":"image/png"}]}'>    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
