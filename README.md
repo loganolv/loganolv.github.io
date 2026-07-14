@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -16,9 +17,16 @@
         :root {
             --primary-blue: #1b4f72;
             --secondary-blue: #2e86c1;
-            --accent-yellow: #ffff00;
             --border-color: #a6a6a6;
             --whatsapp-green: #25d366;
+            
+            /* Nuevas variables de color para estados especiales */
+            --color-descanso: #ffff00;      /* Amarillo */
+            --color-vacaciones: #2ecc71;    /* Verde */
+            --color-capacitacion: #3498db;  /* Azul */
+            --color-corporativo: #bdc3c7;   /* Gris */
+            --color-otra-tienda: #7fa3b5;   /* Azul Grisáceo */
+            --color-incapacidad: #e74c3c;   /* Rojo (por si acaso) */
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
         body { background-color: #f7f9fa; color: #333; padding: 10px; }
@@ -45,7 +53,15 @@
         .th-title { background-color: var(--primary-blue); color: white; font-weight: bold; text-align: left; font-size: 13px; }
         .th-day { background-color: var(--secondary-blue); color: white; font-weight: bold; text-transform: capitalize; }
         .th-sub { background-color: #d9e1f2; font-weight: bold; }
-        .special-cell { background-color: var(--accent-yellow) !important; font-weight: bold; }
+        
+        /* Clases específicas para pintar las celdas en la consulta */
+        .cell-descanso { background-color: var(--color-descanso) !important; font-weight: bold; }
+        .cell-vacaciones { background-color: var(--color-vacaciones) !important; font-weight: bold; color: white; }
+        .cell-capacitacion { background-color: var(--color-capacitacion) !important; font-weight: bold; color: white; }
+        .cell-corporativo { background-color: var(--color-corporativo) !important; font-weight: bold; }
+        .cell-otra-tienda { background-color: var(--color-otra-tienda) !important; font-weight: bold; color: white; }
+        .cell-incapacidad { background-color: var(--color-incapacidad) !important; font-weight: bold; color: white; }
+
         .empty-row { background-color: #a6a6a6; }
         .grid-assignment { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
         .day-box { border: 1px solid var(--border-color); padding: 8px; background: #fcfcfc; border-radius: 4px; }
@@ -438,10 +454,21 @@
                         ent = ent.split(' ')[0]; 
                     }
 
-                    const especiales = ["Descanso", "Vacaciones", "Incapacidad", "Capacitación", "Corporativo", "Otra Tienda"];
-                    if(especiales.includes(cellData.entrada)) {
-                        rowHtml += `<td class="special-cell">"${cellData.entrada}"</td><td class="special-cell">"${cellData.entrada}"</td>`;
+                    // Lógica Dinámica de Colores según el estado especial asignado
+                    if(cellData.entrada === "Descanso") {
+                        rowHtml += `<td class="cell-descanso">"Descanso"</td><td class="cell-descanso">"Descanso"</td>`;
+                    } else if(cellData.entrada === "Vacaciones") {
+                        rowHtml += `<td class="cell-vacaciones">"Vacaciones"</td><td class="cell-vacaciones">"Vacaciones"</td>`;
+                    } else if(cellData.entrada === "Capacitación") {
+                        rowHtml += `<td class="cell-capacitacion">"Capacitación"</td><td class="cell-capacitacion">"Capacitación"</td>`;
+                    } else if(cellData.entrada === "Corporativo") {
+                        rowHtml += `<td class="cell-corporativo">"Corporativo"</td><td class="cell-corporativo">"Corporativo"</td>`;
+                    } else if(cellData.entrada === "Otra Tienda") {
+                        rowHtml += `<td class="cell-otra-tienda">"Otra Tienda"</td><td class="cell-otra-tienda">"Otra Tienda"</td>`;
+                    } else if(cellData.entrada === "Incapacidad") {
+                        rowHtml += `<td class="cell-incapacidad">"Incapacidad"</td><td class="cell-incapacidad">"Incapacidad"</td>`;
                     } else {
+                        // Celda normal con sus horas de entrada y salida comunes
                         rowHtml += `<td>${ent}</td><td>${sal}</td>`;
                     }
                 }
@@ -454,24 +481,19 @@
             }
         }
 
-        // --- SOLUCIÓN DE FONDO: EXTRACCIÓN DE LIENZO INVISIBLE (100% LIMPIO) ---
         function renderizarImagenLimpia(callback) {
             const areaOriginal = document.getElementById('capture-area');
-            
-            // 1. Creamos un contenedor temporal completamente plano y desenrollado
             const clonOculto = areaOriginal.cloneNode(true);
             
-            // 2. Forzamos estilos absolutos de escritorio ancho para eliminar barras de scroll y saltos
             clonOculto.style.position = 'fixed';
             clonOculto.style.top = '0';
-            clonOculto.style.left = '-9999px'; // Lo mandamos fuera de la pantalla visible
-            clonOculto.style.width = '1300px';  // Tamaño ideal para que quepa todo plano y estirado como en tu ejemplo
+            clonOculto.style.left = '-9999px';
+            clonOculto.style.width = '1300px'; 
             clonOculto.style.overflow = 'visible';
             clonOculto.style.background = '#ffffff';
             clonOculto.style.padding = '15px';
             clonOculto.style.boxSizing = 'content-box';
 
-            // Forzar a la tabla interna del clon a ocupar todo el espacio plano
             const tablaClonada = clonOculto.querySelector('.schedule-table');
             if(tablaClonada) {
                 tablaClonada.style.width = '100%';
@@ -479,13 +501,11 @@
 
             document.body.appendChild(clonOculto);
 
-            // 3. Tomamos la foto directo a este clon perfecto
             html2canvas(clonOculto, { 
-                scale: 2, // Excelente definición (Retina)
+                scale: 2, 
                 backgroundColor: "#ffffff",
-                windowWidth: 1350 // Emulamos una ventana gigante
+                windowWidth: 1350
             }).then(canvas => {
-                // 4. Eliminamos el clon de la memoria inmediatamente
                 document.body.removeChild(clonOculto);
                 callback(canvas);
             }).catch(err => {
